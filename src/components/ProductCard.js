@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { IMAGE_BASE } from '../api/api';
 
 const CATEGORY_EMOJI = { SARI: '🥻', CHURI: '💍', NECK_CHAIN: '📿', OTHER: '🎁' };
 
@@ -17,7 +18,7 @@ export default function ProductCard({ product }) {
     <div className="product-card" onClick={() => navigate(`/products/${product.id}`)}>
       <div className="product-card-img">
         {product.imageUrl
-          ? <img src={`http://localhost:8080${product.imageUrl}`} alt={product.name} />
+          ? <img src={`${IMAGE_BASE}${product.imageUrl}`} alt={product.name} />
           : <span style={{ fontSize: 52 }}>{CATEGORY_EMOJI[product.category] || '🎁'}</span>
         }
       </div>

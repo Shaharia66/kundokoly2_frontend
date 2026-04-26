@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import {
   getProducts, deleteProduct, createProduct, updateProduct,
-  getAllOrders, updateOrderStatus,
+  getAllOrders, updateOrderStatus, deleteOrder, IMAGE_BASE
 } from '../api/api';
 import Toast from '../components/Toast';
 
@@ -52,11 +51,11 @@ export default function AdminPage() {
     setSaving(true);
     try {
       const fd = new FormData();
-      fd.append('product', new Blob([JSON.stringify({
-        name: form.name, description: form.description,
-        price: parseFloat(form.price), category: form.category,
-        stockQuantity: parseInt(form.stockQuantity) || 0,
-      })], { type: 'application/json' }));
+      fd.append('name', form.name);
+      fd.append('description', form.description);
+      fd.append('price', parseFloat(form.price));
+      fd.append('category', form.category);
+      fd.append('stockQuantity', parseInt(form.stockQuantity) || 0);
       if (imageFile) fd.append('image', imageFile);
 
       if (editing) {
@@ -74,12 +73,11 @@ export default function AdminPage() {
       setSaving(false);
     }
   };
+
   const handleDeleteOrder = async (id) => {
     if (!window.confirm('Delete this cancelled order?')) return;
     try {
-      await axios.delete(`http://localhost:8080/api/orders/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      await deleteOrder(id);
       setToast('Order deleted.');
       loadOrders();
     } catch {
@@ -168,7 +166,7 @@ export default function AdminPage() {
                   <tr key={p.id}>
                     <td>
                       {p.imageUrl
-                        ? <img src={`http://localhost:8080${p.imageUrl}`} alt={p.name} style={{ width: 48, height: 60, objectFit: 'cover', borderRadius: 2 }} />
+                        ? <img src={`${IMAGE_BASE}${p.imageUrl}`} alt={p.name} style={{ width: 48, height: 60, objectFit: 'cover', borderRadius: 2 }} />
                         : <span style={{ fontSize: 28 }}>🥻</span>
                       }
                     </td>
@@ -284,7 +282,7 @@ export default function AdminPage() {
               </div>
               {editing?.imageUrl && !imageFile && (
                 <div style={{ marginBottom: 16 }}>
-                  <img src={`http://localhost:8080${editing.imageUrl}`} alt="current"
+                  <img src={`${IMAGE_BASE}${editing.imageUrl}`} alt="current"
                     style={{ width: 80, height: 100, objectFit: 'cover', borderRadius: 2, border: '0.5px solid #e0dcd6' }} />
                   <p style={{ fontSize: 11, color: '#888', marginTop: 4 }}>Current image</p>
                 </div>

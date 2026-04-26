@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductById, getReviews, addReview } from '../api/api';
+import { getProductById, getReviews, addReview, IMAGE_BASE } from '../api/api';
 import { useCart } from '../context/CartContext';
 import Toast from '../components/Toast';
 
@@ -63,17 +63,14 @@ export default function ProductDetailPage() {
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 32px' }}>
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
 
-      {/* Product section */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, marginBottom: 60 }}>
-        {/* Image */}
         <div style={{ background: '#f0ece7', aspectRatio: '3/4', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, overflow: 'hidden' }}>
           {product.imageUrl
-            ? <img src={`http://localhost:8080${product.imageUrl}`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ? <img src={`${IMAGE_BASE}${product.imageUrl}`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : <span style={{ fontSize: 80 }}>🥻</span>
           }
         </div>
 
-        {/* Info */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div>
             <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#888', marginBottom: 8 }}>
@@ -121,12 +118,10 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      {/* Reviews section */}
       <div style={{ borderTop: '0.5px solid #e0dcd6', paddingTop: 40 }}>
         <h2 style={{ fontFamily: 'serif', fontSize: 26, marginBottom: 28 }}>Customer Reviews</h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }}>
-          {/* Existing reviews */}
           <div>
             {reviews.length === 0 ? (
               <p style={{ color: '#888', fontSize: 14 }}>No reviews yet. Be the first!</p>
@@ -146,7 +141,6 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          {/* Review form */}
           <div>
             <h3 style={{ fontFamily: 'serif', fontSize: 20, marginBottom: 18, color: '#8b1a1a' }}>Leave a Review</h3>
             <form onSubmit={handleReviewSubmit}>

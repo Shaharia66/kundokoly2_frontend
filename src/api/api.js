@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080/api';
+export const IMAGE_BASE = 'https://kundokoly2-backend.onrender.com';
+const BASE_URL = 'https://kundokoly2-backend.onrender.com/api';
 
 // Attach JWT token to every request if present
 axios.interceptors.request.use((config) => {
@@ -42,6 +43,9 @@ export const getAllOrders = () =>
 
 export const updateOrderStatus = (id, status) =>
   axios.put(`${BASE_URL}/orders/${id}/status`, null, { params: { status } });
+
+export const deleteOrder = (id) =>
+  axios.delete(`${BASE_URL}/orders/${id}`);
 
 // ── Reviews ───────────────────────────────────────
 export const getReviews = (productId) =>
