@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById, getReviews, addReview, IMAGE_BASE } from '../api/api';
 import { useCart } from '../context/CartContext';
@@ -14,28 +14,29 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [quantity, setQuantity] = useState(1);
-
-  const [reviewForm, setReviewForm] = useState({ reviewerName: '', reviewerEmail: '', comment: '', rating: 5 });
+  const [reviewForm, setReviewForm] = useState({
+    reviewerName: '', reviewerEmail: '', comment: '', rating: 5
+  });
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
+  const loadData = useCallback(() => {
     setLoading(true);
-    Promise.all([getProductById(id), getReviews(id)])
-      .then(([prodRes, revRes]) => {
-        setProduct(prodRes.data);
-        setReviews(revRes.data);
-      })
-      .catch((err) => {
-        console.error(err);
-        // Only navigate away if product not found
-        if (err.response?.status === 404) {
-          navigate('/products');
-        }
-      })
+    getProductById(id)
+      .then(res => setProduct(res.data))
+      .catch(err => console.error('Product error:', err));
+
+    getReviews(id)
+      .then(res => setReviews(res.data))
+      .catch(err => console.error('Reviews error:', err))
       .finally(() => setLoading(false));
   }, [id]);
 
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
   const handleAddToCart = () => {
+    if (!product) return;
     for (let i = 0; i < quantity; i++) addToCart(product);
     setToast(`${product.name} added to cart!`);
   };
@@ -49,13 +50,12 @@ export default function ProductDetailPage() {
     setSubmitting(true);
     try {
       await addReview(reviewForm, id);
-      // Reload reviews from server
       const revRes = await getReviews(id);
       setReviews(revRes.data);
       setReviewForm({ reviewerName: '', reviewerEmail: '', comment: '', rating: 5 });
       setToast('Review submitted! Thank you.');
     } catch (err) {
-      console.error(err);
+      console.error('Review error:', err);
       setToast('Failed to submit review. Please try again.');
     } finally {
       setSubmitting(false);
@@ -66,8 +66,18 @@ export default function ProductDetailPage() {
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
     : null;
 
-  if (loading) return <p style={{ textAlign: 'center', padding: 60, color: '#888' }}>Loading…</p>;
-  if (!product) return null;
+  if (loading) return (
+    <p style={{ textAlign: 'center', padding: 60, color: '#888' }}>Loading…</p>
+  );
+
+  if (!product) return (
+    <div style={{ textAlign: 'center', padding: 60 }}>
+      <p style={{ color: '#888', marginBottom: 20 }}>Product not found.</p>
+      <button className="btn-primary" onClick={() => navigate('/products')}>
+        Back to Products
+      </button>
+    </div>
+  );
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 32px' }}>
@@ -86,14 +96,20 @@ export default function ProductDetailPage() {
             <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#888', marginBottom: 8 }}>
               {product.category?.replace('_', ' ')} · Handmade
             </p>
-            <h1 style={{ fontFamily: 'serif', fontSize: 36, fontWeight: 600, marginBottom: 10 }}>{product.name}</h1>
+            <h1 style={{ fontFamily: 'serif', fontSize: 36, fontWeight: 600, marginBottom: 10 }}>
+              {product.name}
+            </h1>
             {avgRating && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                 <Stars rating={Math.round(Number(avgRating))} />
-                <span style={{ fontSize: 13, color: '#888' }}>{avgRating} ({reviews.length} review{reviews.length !== 1 ? 's' : ''})</span>
+                <span style={{ fontSize: 13, color: '#888' }}>
+                  {avgRating} ({reviews.length} review{reviews.length !== 1 ? 's' : ''})
+                </span>
               </div>
             )}
-            <p style={{ fontFamily: 'serif', fontSize: 32, color: '#8b1a1a' }}>৳ {product.price?.toLocaleString()}</p>
+            <p style={{ fontFamily: 'serif', fontSize: 32, color: '#8b1a1a' }}>
+              ৳ {product.price?.toLocaleString()}
+            </p>
           </div>
 
           <p style={{ fontSize: 14, color: '#555', lineHeight: 1.8 }}>{product.description}</p>
@@ -152,21 +168,28 @@ export default function ProductDetailPage() {
           </div>
 
           <div>
-            <h3 style={{ fontFamily: 'serif', fontSize: 20, marginBottom: 18, color: '#8b1a1a' }}>Leave a Review</h3>
+            <h3 style={{ fontFamily: 'serif', fontSize: 20, marginBottom: 18, color: '#8b1a1a' }}>
+              Leave a Review
+            </h3>
             <form onSubmit={handleReviewSubmit}>
               <div className="form-group">
                 <label>Your Name *</label>
-                <input type="text" placeholder="Fatima Begum" value={reviewForm.reviewerName}
-                  onChange={e => setReviewForm(f => ({ ...f, reviewerName: e.target.value }))} required />
+                <input type="text" placeholder="Fatima Begum"
+                  value={reviewForm.reviewerName}
+                  onChange={e => setReviewForm(f => ({ ...f, reviewerName: e.target.value }))}
+                  required />
               </div>
               <div className="form-group">
                 <label>Email *</label>
-                <input type="email" placeholder="fatima@email.com" value={reviewForm.reviewerEmail}
-                  onChange={e => setReviewForm(f => ({ ...f, reviewerEmail: e.target.value }))} required />
+                <input type="email" placeholder="fatima@email.com"
+                  value={reviewForm.reviewerEmail}
+                  onChange={e => setReviewForm(f => ({ ...f, reviewerEmail: e.target.value }))}
+                  required />
               </div>
               <div className="form-group">
                 <label>Rating *</label>
-                <select value={reviewForm.rating} onChange={e => setReviewForm(f => ({ ...f, rating: Number(e.target.value) }))}>
+                <select value={reviewForm.rating}
+                  onChange={e => setReviewForm(f => ({ ...f, rating: Number(e.target.value) }))}>
                   {[5, 4, 3, 2, 1].map(n => (
                     <option key={n} value={n}>{'⭐'.repeat(n)} ({n}/5)</option>
                   ))}
@@ -174,10 +197,13 @@ export default function ProductDetailPage() {
               </div>
               <div className="form-group">
                 <label>Comment *</label>
-                <textarea rows={4} placeholder="Share your experience with this product…" value={reviewForm.comment}
-                  onChange={e => setReviewForm(f => ({ ...f, comment: e.target.value }))} required />
+                <textarea rows={4} placeholder="Share your experience…"
+                  value={reviewForm.comment}
+                  onChange={e => setReviewForm(f => ({ ...f, comment: e.target.value }))}
+                  required />
               </div>
-              <button type="submit" className="btn-primary" style={{ width: '100%' }} disabled={submitting}>
+              <button type="submit" className="btn-primary"
+                style={{ width: '100%' }} disabled={submitting}>
                 {submitting ? 'Submitting…' : 'Submit Review'}
               </button>
             </form>
