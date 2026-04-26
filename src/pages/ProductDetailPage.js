@@ -19,12 +19,19 @@ export default function ProductDetailPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     Promise.all([getProductById(id), getReviews(id)])
       .then(([prodRes, revRes]) => {
         setProduct(prodRes.data);
         setReviews(revRes.data);
       })
-      .catch(() => navigate('/products'))
+      .catch((err) => {
+        console.error(err);
+        // Only navigate away if product not found
+        if (err.response?.status === 404) {
+          navigate('/products');
+        }
+      })
       .finally(() => setLoading(false));
   }, [id]);
 
@@ -41,11 +48,14 @@ export default function ProductDetailPage() {
     }
     setSubmitting(true);
     try {
-      const res = await addReview(reviewForm, id);
-      setReviews((prev) => [res.data, ...prev]);
+      await addReview(reviewForm, id);
+      // Reload reviews from server
+      const revRes = await getReviews(id);
+      setReviews(revRes.data);
       setReviewForm({ reviewerName: '', reviewerEmail: '', comment: '', rating: 5 });
       setToast('Review submitted! Thank you.');
-    } catch {
+    } catch (err) {
+      console.error(err);
       setToast('Failed to submit review. Please try again.');
     } finally {
       setSubmitting(false);
