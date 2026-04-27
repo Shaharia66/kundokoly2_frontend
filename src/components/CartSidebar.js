@@ -1,7 +1,6 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
-import { IMAGE_BASE } from '../api/api';
 
 export default function CartSidebar({ onClose }) {
   const { items, removeFromCart, updateQuantity, total } = useCart();
@@ -34,7 +33,7 @@ export default function CartSidebar({ onClose }) {
               <div key={product.id} className="cart-item">
                 <div className="cart-item-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>
                   {product.imageUrl
-                    ? <img src={`${IMAGE_BASE}${product.imageUrl}`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ? <img src={product.imageUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     : categoryEmoji(product.category)
                   }
                 </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getProductById, getReviews, addReview, IMAGE_BASE } from '../api/api';
+import { getProductById, getReviews, addReview} from '../api/api';
 import { useCart } from '../context/CartContext';
 import Toast from '../components/Toast';
 
@@ -86,7 +86,7 @@ export default function ProductDetailPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, marginBottom: 60 }}>
         <div style={{ background: '#f0ece7', aspectRatio: '3/4', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, overflow: 'hidden' }}>
           {product.imageUrl
-            ? <img src={`${IMAGE_BASE}${product.imageUrl}`} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ? <img src={product.imageUrl} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : <span style={{ fontSize: 80 }}>🥻</span>
           }
         </div>

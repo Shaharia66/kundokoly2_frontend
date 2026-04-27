@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
   getProducts, deleteProduct, createProduct, updateProduct,
-  getAllOrders, updateOrderStatus, deleteOrder, IMAGE_BASE
+  getAllOrders, updateOrderStatus, deleteOrder
 } from '../api/api';
 import Toast from '../components/Toast';
 
@@ -166,7 +166,7 @@ export default function AdminPage() {
                   <tr key={p.id}>
                     <td>
                       {p.imageUrl
-                        ? <img src={`${IMAGE_BASE}${p.imageUrl}`} alt={p.name} style={{ width: 48, height: 60, objectFit: 'cover', borderRadius: 2 }} />
+                        ? <img src={p.imageUrl} alt={p.name} style={{ width: 48, height: 60, objectFit: 'cover', borderRadius: 2 }} />
                         : <span style={{ fontSize: 28 }}>🥻</span>
                       }
                     </td>
@@ -282,8 +282,8 @@ export default function AdminPage() {
               </div>
               {editing?.imageUrl && !imageFile && (
                 <div style={{ marginBottom: 16 }}>
-                  <img src={`${IMAGE_BASE}${editing.imageUrl}`} alt="current"
-                    style={{ width: 80, height: 100, objectFit: 'cover', borderRadius: 2, border: '0.5px solid #e0dcd6' }} />
+                  <img src={editing.imageUrl} alt="current"
+                    style={{ width: 80, height: 100, objectFit: 'cover', borderRadius: 2 }} />
                   <p style={{ fontSize: 11, color: '#888', marginTop: 4 }}>Current image</p>
                 </div>
               )}
