@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-export const IMAGE_BASE = 'https://kundokoli-backend.onrender.com';
-const BASE_URL = 'https://kundokoli-backend.onrender.com/api';
+export const IMAGE_BASE = 'https://kundokoly2-backend.onrender.com';
+const BASE_URL = 'https://kundokoly2-backend.onrender.com/api';
 
 // Attach JWT token to every request if present
 axios.interceptors.request.use((config) => {
