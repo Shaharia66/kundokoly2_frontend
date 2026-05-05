@@ -18,6 +18,8 @@ export const login = (username, password) =>
 export const getProducts = (params) =>
   axios.get(`${BASE_URL}/products`, { params });
 
+
+
 export const getProductById = (id) =>
   axios.get(`${BASE_URL}/products/${id}`);
 
