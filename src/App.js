@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -13,6 +13,32 @@ import AdminPage from './pages/AdminPage';
 import './index.css';
 
 export default function App() {
+  const [backendReady, setBackendReady] = useState(false);
+
+  useEffect(() => {
+    fetch('https://kundokoly2-backend.onrender.com/health')
+      .then(() => setBackendReady(true))
+      .catch(() => setBackendReady(true));
+  }, []);
+
+  if (!backendReady) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        fontSize: '20px'
+      }}>
+        <p>⏳ Please wait...</p>
+        <p style={{ fontSize: '14px', color: 'gray' }}>
+          Server is waking up, this may take 30-60 seconds
+        </p>
+      </div>
+    );
+  }
+
   return (
     <AuthProvider>
       <CartProvider>
